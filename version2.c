@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include "lecteur_redacteur.h"
+#include "lecteur_redacteur2.h"
 
 typedef struct {
     lecteur_redacteur_t lecteur_redacteur;
@@ -16,8 +16,9 @@ void dodo(int scale) {
 
 void debut_lecture(lecteur_redacteur_t* lr){
 	pthread_mutex_lock(&lr->global);
-	while (lr->nbR > 0){
-		pthread_cond_wait(&lr->fileL, &lr->global);
+	if(lr->nbL == 0){
+		printf("Thread %x : ATTENTE LECTURE\n", (int) pthread_self());
+		sem_wait(&lr->sem);
 	}
 	lr->nbL++;
 	pthread_mutex_unlock(&lr->global);
@@ -26,55 +27,33 @@ void debut_lecture(lecteur_redacteur_t* lr){
 void fin_lecture(lecteur_redacteur_t* lr){
 	pthread_mutex_lock(&lr->global);
 	lr->nbL--;
-	if (lr->nbL == 0){
-		pthread_cond_signal(&lr->fileR);
+	if(lr->nbL == 0){
+		sem_post(&lr->sem);
 	}
+	
 	pthread_mutex_unlock(&lr->global);
 }
 
 void debut_redaction(lecteur_redacteur_t* lr){
-	pthread_mutex_lock(&lr->global);
-	lr->nbR++;
-	while (lr->isWriting || lr->nbL > 0){
-		pthread_cond_wait(&lr->fileR, &lr->global);
-	}
-	lr->isWriting = 1;
-	pthread_mutex_unlock(&lr->global);
+	sem_wait(&lr->sem);
 }
 
 void fin_redaction(lecteur_redacteur_t* lr){
-	pthread_mutex_lock(&lr->global);
-	lr->nbR--;
-	lr->isWriting = 0;
-	if (lr->nbR > 0){
-		pthread_cond_signal(&lr->fileR);
-	}else {
-		pthread_cond_broadcast(&lr->fileL);
-	}
-	pthread_mutex_unlock(&lr->global);
+	sem_post(&lr->sem);
 }
 
 
 void initialiser_lecteur_redacteur(lecteur_redacteur_t* lr){
 	int i;
 	lr->nbL = 0;
-	lr->nbR = 0;
-	lr->isWriting = 0;
 	i = pthread_mutex_init(&lr->global, NULL);
 	printf("%d\n",i);
-	i =pthread_cond_init(&lr->fileL,NULL);
-	printf("%d\n",i);
-	i = pthread_cond_init(&lr->fileR,NULL);
-	printf("%d\n",i);
-
-	
-
+	sem_init(&lr->sem,0,1);
 }
 
 void detruire_lecteur_redacteur(lecteur_redacteur_t* lr){
 	pthread_mutex_destroy(&lr->global);
-	pthread_cond_destroy(&lr->fileL);
-	pthread_cond_destroy(&lr->fileR);
+	sem_destroy(&lr->sem);
 }
 
 
@@ -144,7 +123,6 @@ int main(int argc, char *argv[]) {
     threads = malloc((nb_lecteurs+nb_redacteurs)*sizeof(pthread_t));
     thread_courant = threads;
     initialiser_lecteur_redacteur(&donnees_thread.lecteur_redacteur);
-	printf("%d et %d\n",donnees_thread.lecteur_redacteur.nbL,donnees_thread.lecteur_redacteur.nbR);
 
     for (i=0; i<nb_lecteurs; i++)
         pthread_create(thread_courant++, NULL, lecteur, &donnees_thread);

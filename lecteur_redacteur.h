@@ -3,12 +3,10 @@
 #include <pthread.h>
 
 typedef struct {
-	//ETAT 0 : PERSONNE NE LIT NI N'ECRIT // ETAT 1 : QUELQU'UN LIT // ETAT 2 : 
-	int etat;
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
+	pthread_mutex_t global;
+	pthread_cond_t fileL, fileR;
+	int nbL, nbR, isWriting;
 
 } lecteur_redacteur_t;
-
 
 #endif
