@@ -1,3 +1,8 @@
+/**************************************
+VERSION 1 : Priorité aux rédacteurs
+**************************************/
+
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +19,9 @@ void dodo(int scale) {
     usleep((random()%1000000)*scale);
 }
 
+/**
+Début de lecture : on s'endort tant qu'il reste des rédacteurs en train d'écrire
+**/
 void debut_lecture(lecteur_redacteur_t* lr){
 	pthread_mutex_lock(&lr->global);
 	while (lr->nbR > 0){
@@ -22,7 +30,9 @@ void debut_lecture(lecteur_redacteur_t* lr){
 	lr->nbL++;
 	pthread_mutex_unlock(&lr->global);
 }
-
+/**
+Fin de lecture : si il n'y a plus personne en train de lire : le signaler aux rédacteurs qui pourront possiblement prendre la main.
+**/
 void fin_lecture(lecteur_redacteur_t* lr){
 	pthread_mutex_lock(&lr->global);
 	lr->nbL--;
@@ -31,7 +41,10 @@ void fin_lecture(lecteur_redacteur_t* lr){
 	}
 	pthread_mutex_unlock(&lr->global);
 }
-
+/**
+Début de rédaction : tant qu'un rédacteur est en train d'écrire, ou qu'il y a des lecteurs qui sont encore en train de lire : s'endormir.
+Si le thread réussi à prendre la main, il indique qu'il y a un rédacteur en train d'écrire.
+**/
 void debut_redaction(lecteur_redacteur_t* lr){
 	pthread_mutex_lock(&lr->global);
 	lr->nbR++;
@@ -41,7 +54,10 @@ void debut_redaction(lecteur_redacteur_t* lr){
 	lr->isWriting = 1;
 	pthread_mutex_unlock(&lr->global);
 }
-
+/**
+Fin de rérdaction: si il y au moins un rédacteur en attente, signaler les rédacteurs.
+Si il n'y a plus de rédacteurs en attente, le signaler aux lecteurs qui pourront possiblement prendre la main
+**/
 void fin_redaction(lecteur_redacteur_t* lr){
 	pthread_mutex_lock(&lr->global);
 	lr->nbR--;

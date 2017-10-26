@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include "thread_safe_list.h"
+#include "thread_safe_list_version2.h"
 
 typedef struct {
     lecteur_redacteur_t lecteur_redacteur;
@@ -21,7 +21,7 @@ void debut_lecture(lecteur_redacteur_t* lr){
 		pthread_cond_wait(&lr->fileL, &lr->global);
 	}
 	lr->nbL++;
-	pthread_cond_broadcast(&lr->fileL);
+	//pthread_cond_broadcast(&lr->fileL);
 	pthread_mutex_unlock(&lr->global);
 }
 
@@ -131,8 +131,8 @@ int main(int argc, char *argv[]) {
     void *resultat;
 
     if (argc < 4) {
-//        printf(stderr, "Utilisation: %s nb_lecteurs nb_redacteurs "
-                   //     "nb_iterations\n", argv[0]);
+      //printf(stderr, "Utilisation: %s nb_lecteurs nb_redacteurs "
+        //              "nb_iterations\n", argv[0]);
         exit(1);
     }
 

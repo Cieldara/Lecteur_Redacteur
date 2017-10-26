@@ -1,5 +1,6 @@
-#include "thread_safe_list.h"
+#include "thread_safe_list_version2.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 int init_list(thread_safe_list* list){
     list->head = NULL;
@@ -20,16 +21,53 @@ int is_head(thread_safe_list* list,type type, int thread_id){
 
     pthread_mutex_lock(&list->mutex_on_list);
     int ret = 0;
-        if(list->head->id->thread_id == thread_id){
-	    node * to_free = list->head;
-	    free(to_free->id);
-	    free(to_free);
-            ret = 1;
-            list->head = list->head->next;
-            if(list->head == NULL){
-                list->tail = NULL;
-            }
-        }
+
+	if(type == REDACTEUR){
+
+		if(list->head->id->thread_id == thread_id){
+		    ret = 1;
+		    node * to_free = list->head;
+	  	    free(to_free->id);
+	    	    free(to_free);
+		    list->head = list->head->next;
+		    if(list->head == NULL){
+		        list->tail = NULL;
+		    }
+		}
+	}
+	//if type is READER
+	else{
+		node * loop = list->head;
+		node * pred = NULL;
+		while(!ret && loop->id->type != REDACTEUR){
+			if(loop->id->thread_id == thread_id){
+				ret = 1; //We found our data
+			}
+			else{
+				pred = loop;
+				loop = loop->next;
+			}
+		}
+		//Now we can remove it !
+		if(ret){
+			if(list->head == loop){
+				node * to_free = list->head;
+	    			free(to_free->id);
+	    			free(to_free);
+				list->head = list->head->next;
+		    		if(list->head == NULL){
+		       			 list->tail = NULL;
+		    		}
+			}
+			else{
+				pred->next = loop->next;
+				if(pred->next == NULL)
+					list->tail = pred;
+				free(loop->id);
+	    			free(loop);
+			}
+		}
+	}
     pthread_mutex_unlock(&list->mutex_on_list);
     return ret;
 }
