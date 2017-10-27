@@ -74,7 +74,7 @@ int is_head(thread_safe_list* list,type type, int thread_id){
 
 //Add element at the end of the list
 void add_element(thread_safe_list* list,type type, int thread_id){
-
+	printf("On ajoute %d\n",thread_id);
     pthread_mutex_lock(&list->mutex_on_list);
     node* node =  malloc(sizeof(node));
     identifier_t* identifier = malloc(sizeof(identifier_t));

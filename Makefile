@@ -1,7 +1,7 @@
 CC=gcc
 
 
-all: version1 version2 version3 version4
+all: version1 version2 version3 version4 version5
 
 version1: version1.o
 	$(CC) -o version1 version1.o -lpthread
@@ -37,6 +37,16 @@ version4.o: version4.c
 thread_safe_list_version2.o: thread_safe_list_version2.c
 	$(CC) -c thread_safe_list_version2.c
 
+version5: version5.o thread_safe_list_version3.o
+	$(CC) -o version5 version5.o thread_safe_list_version3.o -lpthread
+
+
+version5.o: version5.c
+	$(CC) -c version5.c 
+
+thread_safe_list_version3.o: thread_safe_list_version3.c
+	$(CC) -c thread_safe_list_version3.c
+
 clean:
-	rm -rf *.o version1 version2 version3 version4
+	rm -rf *.o version1 version2 version3 version4 version5
 
