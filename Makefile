@@ -1,7 +1,21 @@
-CC=gcc
-
+CC=gcc -Wall -Werror
 
 all: version1 version2 version3 version4 version5
+
+test1: version1 
+	./version1 5 5 5
+
+test2: version2
+	./version2 5 5 5
+
+test3: version3
+	./version3 5 5 5
+
+test4: version4
+	./version4 5 5 5
+
+test5: version5
+	./version5 5 5 5
 
 version1: version1.o
 	$(CC) -o version1 version1.o -lpthread

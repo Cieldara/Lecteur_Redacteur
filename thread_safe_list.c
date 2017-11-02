@@ -3,8 +3,8 @@
 
 int init_list(thread_safe_list* list){
     list->head = NULL;
-    pthread_mutex_init(&list->mutex_on_list,NULL);
-    return 0;
+    return pthread_mutex_init(&list->mutex_on_list,NULL);
+    
 }
 
 char tos(type t){

@@ -17,13 +17,12 @@ char tos(type t){
 
 //Add element at the end of the list
 void add_element(thread_safe_list* list,type type, int thread_id){
-   printf("On ajoute %d de type %c\n",thread_id,tos(type));
+//   printf("On ajoute %d de type %c\n",thread_id,tos(type));
     pthread_mutex_lock(&list->mutex_on_list);
     node* node =  malloc(sizeof(node));
     identifier_t* identifier = malloc(sizeof(identifier_t));
     identifier->thread_id = thread_id;
-    identifier->type = type;
-    
+    identifier->type = type;    
     node->id = identifier;
     node->next=NULL;
     if (list->head == NULL){
@@ -37,6 +36,9 @@ void add_element(thread_safe_list* list,type type, int thread_id){
     pthread_mutex_unlock(&list->mutex_on_list);
 }
 
+
+//If the element we are looking for is at the head of the list : remove it and return true
+//Else list is not modified and return false
 int is_head(thread_safe_list* list,type type, int thread_id){
 
     pthread_mutex_lock(&list->mutex_on_list);
@@ -54,7 +56,7 @@ int is_head(thread_safe_list* list,type type, int thread_id){
     pthread_mutex_unlock(&list->mutex_on_list);
     return ret;
 }
-
+//Envoi un signal a la variable condition associee au thread en tete de liste
 void signal_head(thread_safe_list* list){
 	pthread_mutex_lock(&list->mutex_on_list);
 	if(list->head != NULL){

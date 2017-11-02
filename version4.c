@@ -59,14 +59,13 @@ void fin_redaction(lecteur_redacteur_t* lr){
 
 
 void initialiser_lecteur_redacteur(lecteur_redacteur_t* lr){
-	int i;
 	lr->nbL = 0;
 	lr->nbR = 0;
 	lr->isWriting = 0;
-	i = pthread_mutex_init(&lr->global, NULL);
-	i =pthread_cond_init(&lr->fileL,NULL);
-	i = pthread_cond_init(&lr->fileR,NULL);
-	i = init_list(&lr->list);
+	pthread_mutex_init(&lr->global, NULL);
+	pthread_cond_init(&lr->fileL,NULL);
+	pthread_cond_init(&lr->fileR,NULL);
+	init_list(&lr->list);
 }
 
 void detruire_lecteur_redacteur(lecteur_redacteur_t* lr){

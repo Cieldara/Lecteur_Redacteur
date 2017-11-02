@@ -65,10 +65,10 @@ void initialiser_lecteur_redacteur(lecteur_redacteur_t* lr, int nb){
 	printf("%d\n",pthread_mutex_init(&lr->global, NULL));
 	init_list(&lr->list);
 	lr->nbL = 0;
-	lr->nbR = 0;
+	lr->nbR = 0;int i = 0;
 	lr->isWriting = 0;
 	lr->list.cond_tab = malloc(nb*sizeof(pthread_cond_t));
-	for(int i = 0; i <nb;i++){
+	for( i = 0; i <nb;i++){
 		printf("%d\n",pthread_cond_init(&lr->list.cond_tab[i],NULL));
 	}
 }
