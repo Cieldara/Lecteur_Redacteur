@@ -48,6 +48,7 @@ Si le thread réussi à prendre la main, il indique qu'il y a un rédacteur en t
 void debut_redaction(lecteur_redacteur_t* lr){
 	pthread_mutex_lock(&lr->global);
 	lr->nbR++;
+	printf("Attente de redaction !\n");
 	while (lr->isWriting || lr->nbL > 0){
 		pthread_cond_wait(&lr->fileR, &lr->global);
 	}
