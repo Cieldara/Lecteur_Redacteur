@@ -6,6 +6,7 @@
 
 typedef struct {
 	pthread_mutex_t global;
+	pthread_mutex_t mutex_red;
 	sem_t sem;
 	int nbL;
 

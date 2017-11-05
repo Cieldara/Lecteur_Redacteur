@@ -35,11 +35,13 @@ void fin_lecture(lecteur_redacteur_t* lr){
 }
 
 void debut_redaction(lecteur_redacteur_t* lr){
+	pthread_mutex_lock(&lr->mutex_red);
 	sem_wait(&lr->sem);
 }
 
 void fin_redaction(lecteur_redacteur_t* lr){
 	sem_post(&lr->sem);
+	pthread_mutex_unlock(&lr->mutex_red);
 }
 
 
@@ -49,10 +51,12 @@ void initialiser_lecteur_redacteur(lecteur_redacteur_t* lr){
 	i = pthread_mutex_init(&lr->global, NULL);
 	printf("%d\n",i);
 	sem_init(&lr->sem,0,1);
+	pthread_mutex_init(&lr->mutex_red,NULL);
 }
 
 void detruire_lecteur_redacteur(lecteur_redacteur_t* lr){
 	pthread_mutex_destroy(&lr->global);
+	pthread_mutex_destroy(&lr->mutex_red);
 	sem_destroy(&lr->sem);
 }
 
